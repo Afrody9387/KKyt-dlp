@@ -19,6 +19,7 @@
 - **🛡️ 纯净安全**：无广告、无多余进程、所有下载逻辑直接与官网交互。
 - **💻 跨平台适配**：针对 Windows 的 CMD 窗口和 macOS 的 Tcl/Tk 崩溃问题均进行了专项深度优化。
 - **🔧 智能内核管理**：内置 `n-challenge` 签名挑战解决方案（QuickJS），有效避免“格式不可用”报错。
+- **📺 广泛支持**：理论支持全球 **1000+** 主流视频网站（Youtube, Bilibili, TikTok, Twitter 等）。[查看完整列表](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
 
 ---
 
