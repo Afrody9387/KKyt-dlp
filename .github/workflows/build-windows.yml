@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: windows-latest
@@ -42,9 +45,10 @@ jobs:
     - name: Build with PyInstaller
       run: |
         python -m PyInstaller --noconfirm KKyt-dlp_Windows.spec
+        ls dist/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: KKyt-dlp-Windows-Build
-        path: dist/KKyt-dlp.exe
+        path: dist/*.exe
