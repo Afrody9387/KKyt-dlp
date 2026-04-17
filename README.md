@@ -68,6 +68,19 @@
 
 ---
 
+## 🛠️ 常见问题排查 (Windows 端)
+
+如果您在 Windows 上遇到下载失败（尤其是 YouTube），通常是由以下原因导致的：
+
+1.  **Cookie 数据库锁定**：Windows 上的 Chrome/Edge 会在浏览器运行时锁定数据库，导致程序无法直接提取 Cookie。
+2.  **机器人检测**：YouTube 对 Windows 的反爬虫检测比 macOS 更为严格。
+
+**💡 解决方案**：
+- 建议通过浏览器插件（如 *Get cookies.txt LOCALLY*）导出 `cookies.txt`。
+- 在软件右上角的 **设置** 中点击 **“导入 cookies.txt”**。这是目前解决“无法解析格式”或“登录验证”报错最稳妥、最彻底的方法。
+
+---
+
 ## 📜 开源协议
 
 本项目基于 [MIT License](LICENSE) 协议开源。请务必遵守当地法律法规，仅限用于个人学习研究。
