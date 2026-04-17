@@ -96,7 +96,7 @@ class DownloadTask:
         ]
         
         # 注入客户端伪装参数 (2026 最稳策略)
-        cmd.extend(["--extractor-args", "youtube:player_client=web_safari"])
+        cmd.extend(["--extractor-args", "youtube:player-client=android,web"])
         
         # 显式指定 JS 运行时 (解决 n-challenge 失败问题)
         cmd.extend(["--js-runtimes", f"quickjs:{qjs_bin}"])
