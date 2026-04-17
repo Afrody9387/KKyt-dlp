@@ -23,20 +23,21 @@ jobs:
         pip install PyInstaller customtkinter psutil pillow yt-dlp
 
     - name: Download Windows Binaries
+      shell: pwsh
       run: |
-        mkdir bin
+        New-Item -ItemType Directory -Force -Path bin
         # yt-dlp
         curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -o bin/yt-dlp.exe
         # QuickJS (qjs)
-        curl -L https://github.com/quickjs-ng/quickjs/releases/download/v0.14.0/qjs-windows-x86_64.exe -o bin/qjs.exe
-        # FFmpeg (using a direct link to a reliable build)
+        curl -L https://github.com/quickjs-ng/quickjs-ng/releases/download/v0.14.0/qjs-windows-x86_64.exe -o bin/qjs.exe
+        # FFmpeg
         curl -L https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip -o ffmpeg.zip
-        expand-archive ffmpeg.zip -destpath ffmpeg_temp
-        move ffmpeg_temp/*/bin/ffmpeg.exe bin/
-        move ffmpeg_temp/*/bin/ffprobe.exe bin/
+        Expand-Archive ffmpeg.zip -DestinationPath ffmpeg_temp
+        Get-ChildItem -Path "ffmpeg_temp\*\bin\ffmpeg.exe" | Move-Item -Destination "bin\ffmpeg.exe" -Force
+        Get-ChildItem -Path "ffmpeg_temp\*\bin\ffprobe.exe" | Move-Item -Destination "bin\ffprobe.exe" -Force
         # Cleanup
-        rm ffmpeg.zip
-        rm -r -force ffmpeg_temp
+        Remove-Item ffmpeg.zip
+        Remove-Item -Recurse -Force ffmpeg_temp
 
     - name: Build with PyInstaller
       run: |
