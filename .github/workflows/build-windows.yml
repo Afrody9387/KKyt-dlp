@@ -1,0 +1,49 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyInstaller customtkinter psutil pillow yt-dlp
+
+    - name: Download Windows Binaries
+      run: |
+        mkdir bin
+        # yt-dlp
+        curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -o bin/yt-dlp.exe
+        # QuickJS (qjs)
+        curl -L https://github.com/quickjs-ng/quickjs/releases/download/v0.14.0/qjs-windows-x86_64.exe -o bin/qjs.exe
+        # FFmpeg (using a direct link to a reliable build)
+        curl -L https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip -o ffmpeg.zip
+        expand-archive ffmpeg.zip -destpath ffmpeg_temp
+        move ffmpeg_temp/*/bin/ffmpeg.exe bin/
+        move ffmpeg_temp/*/bin/ffprobe.exe bin/
+        # Cleanup
+        rm ffmpeg.zip
+        rm -r -force ffmpeg_temp
+
+    - name: Build with PyInstaller
+      run: |
+        python -m PyInstaller --noconfirm KKyt-dlp_Windows.spec
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: KKyt-dlp-Windows-Build
+        path: dist/KKyt-dlp.exe
