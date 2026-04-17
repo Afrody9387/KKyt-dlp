@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+venv/
+build_env/
+
+# PyInstaller
+#  Normally these are 1D and 1F folders and some files
+#  But we specifically want to exclude the whole build and dist folders
+build/
+dist/
+*.spec
+
+# Keep specific spec files if desired (uncomment if you want to keep them)
+# !KKyt-dlp.spec
+# !KKyt-dlp_Windows.spec
+
+# Binaries & Large Files
+bin/
+*.app
+*.dmg
+*.exe
+*.zip
+*.tar.gz
+
+# OS Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project Specific
+cookies.txt
+*.log
