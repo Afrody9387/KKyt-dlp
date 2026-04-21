@@ -381,7 +381,7 @@ class App(ctk.CTk):
         
         # 1. 关于部分
         ctk.CTkLabel(settings_win, text="关于 KKyt-dlp", font=("Microsoft YaHei", 16, "bold")).pack(pady=(20, 5))
-        about_text = "KKyt-dlp v1.0 | 强效视频下载利器\n\n本程序由 AI 驱动开发，基于优秀的开源项目\nyt-dlp 与 FFmpeg 构建。致力于为您提供\n极简且强大的视频下载体验。"
+        about_text = "KKyt-dlp v1.6 | 强效视频下载利器\n\n本程序由 AI 驱动开发，基于优秀的开源项目\nyt-dlp 与 FFmpeg 构建。致力于为您提供\n极简且强大的视频下载体验。"
         ctk.CTkLabel(settings_win, text=about_text, font=("Microsoft YaHei", 12), text_color="#666666").pack(pady=5)
         
         # 分隔线
