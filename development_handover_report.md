@@ -64,5 +64,27 @@
 4.  **Cookie**: 如果 Mac 端也遇到机器人拦截，可以复用我新写的“手动导入 cookies.txt”功能。
 
 ---
+---
 **报告整理人**: Antigravity (AI Coding Assistant)  
-**日期**: 2026-04-16
+**更新日期**: 2026-04-21
+
+---
+
+## 5. macOS v1.6 封包避坑与技术总结
+
+### 5.1 彻底抛弃 PIL 的 Tkinter 渲染
+- **背景**: 在 macOS ARM64 及部分新版本环境中，受限于 Tcl/Tk 底层动态库绑定策略，`PyInstaller` 将 `Pillow (PIL)` 延伸模块打入 bundle 时会遭遇极高概率的环境崩溃（包含 `ModuleNotFoundError: No module named 'PIL._tkinter_finder'` 或 `TypeError: bad argument type for built-in operation`）。
+- **解决方案**:
+  1. 通过独立脚本或原生系统能力，预将 `logo.png` 这类静态资源脱水缩放成特定尺寸的 `logo_48.png`。
+  2. 在源码中**彻底舍弃 `ctk.CTkImage` 及任何隐式调用 PIL ImageTk 的逻辑**，退回使用没有任何架构隐患的 Python 原生组件 `tk.PhotoImage(file=...)` 结合 `tk.Label`。
+- **关联文件**: `main.py` UI 挂载代码段。
+
+### 5.2 dmgbuild 取代 AppleScript 解决 GUI 挂载空白或错位
+- **背景**: 旧方案使用了 `create-dmg` 工具依赖 `osascript` 呼叫访达（Finder）进行挂载界面的二次美化。这一机制致命弱点是容易遭到现代 macOS TCC 的自动沙盒屏蔽，一旦因权限报错静默失败，后续用户下载见到的只能是默认的“白板底图和杂乱排版”。此外苹果操作系统的 `.DS_Store` 对于同名挂载磁盘具有很深的界面缓存机制。
+- **解决方案**:
+  1. 引入了纯 Python 底层驱动的二进制改写库：`dmgbuild` 并在根目录设立 `dmg_settings.py`。
+  2. 它的机制是直接在系统底层以数据块形式刻录与覆写镜像的隐藏 `.DS_Store`。不但完全跨越了 Finder 的安全权限限制，也保证了绝对精准的高级贴图覆盖（使用 800x500 毛玻璃抽象图）和绝对固化的安装应用图标占位。
+- **关联文件**: `dmg_settings.py` 及打包脚本。
+
+### 5.3 自动化构建脚本集成
+- 我们已将包含隐性参数补丁及二进制挂靠声明等最新安全方案写成了独立的自动化 Shell。后续如有任何源代码热更新，直接执行根目录的 `./build_macos.sh` 即可实现一键输出高品质的 `.dmg`。

@@ -11,7 +11,9 @@ class ConfigManager:
         self.config_file = os.path.join(self.config_dir, "config.json")
         self.default_config = {
             "download_path": os.path.expanduser("~/Downloads"),
-            "appearance_mode": "Light"
+            "appearance_mode": "Light",
+            "max_concurrent": 3,
+            "language": "zh"
         }
         self.config = self.load_config()
 
