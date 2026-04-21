@@ -229,12 +229,25 @@ class App(ctk.CTk):
         self.input_row.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(15, 10))
         self.input_row.grid_columnconfigure(0, weight=1)
 
-        self.url_entry = ctk.CTkEntry(self.input_row, placeholder_text="在此粘贴视频链接 (YouTube, Bilibili...)", height=45)
+        self.url_entry = ctk.CTkTextbox(self.input_row, height=80, font=("Microsoft YaHei", 12))
         self.url_entry.grid(row=0, column=0, padx=(10, 5), pady=5, sticky="ew")
+        self.url_entry.insert("1.0", "在此粘贴视频链接，支持多行，一条链接一行...")
+        
+        # 简单模拟 placeholder
+        self.url_entry.bind("<FocusIn>", lambda e: self.url_entry.delete("1.0", "end") if "一条链接一行" in self.url_entry.get("1.0", "end-1c") else None)
+        self.url_entry.bind("<FocusOut>", lambda e: self.url_entry.insert("1.0", "在此粘贴视频链接，支持多行，一条链接一行...") if not self.url_entry.get("1.0", "end-1c").strip() else None)
 
-        self.add_btn = ctk.CTkButton(self.input_row, text="添加任务", width=120, height=45, 
+        self.action_btn_frame = ctk.CTkFrame(self.input_row, fg_color="transparent")
+        self.action_btn_frame.grid(row=0, column=1, padx=(5, 10), pady=5, sticky="ns")
+
+        self.paste_btn = ctk.CTkButton(self.action_btn_frame, text="📋 一键粘贴", width=120, height=35,
+                                       font=("Microsoft YaHei", 13), fg_color="#17A2B8", hover_color="#138496",
+                                       command=self.paste_from_clipboard)
+        self.paste_btn.pack(side="top", pady=(0, 5), fill="x", expand=True)
+
+        self.add_btn = ctk.CTkButton(self.action_btn_frame, text="🚀 批量添加任务", width=120, height=35, 
                                      font=("Microsoft YaHei", 14, "bold"), command=self.add_to_queue)
-        self.add_btn.grid(row=0, column=1, padx=(5, 10), pady=5)
+        self.add_btn.pack(side="bottom", pady=(5, 0), fill="x", expand=True)
 
         # 第 2 行：选项配置 (Cookie & 画质 & 格式) - 平均对齐
         self.option_row = ctk.CTkFrame(self.top_frame, fg_color="transparent")
@@ -289,11 +302,34 @@ class App(ctk.CTk):
         # 生命周期管理
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+    def paste_from_clipboard(self):
+        """一键从剪贴板粘贴内容到输入框"""
+        try:
+            clipboard_text = self.clipboard_get()
+            if clipboard_text:
+                current_text = self.url_entry.get("1.0", "end-1c")
+                if "一条链接一行" in current_text:
+                    self.url_entry.delete("1.0", "end")
+                    self.url_entry.insert("1.0", clipboard_text)
+                else:
+                    if current_text.strip():
+                        self.url_entry.insert("end", "\n" + clipboard_text)
+                    else:
+                        self.url_entry.insert("1.0", clipboard_text)
+        except Exception:
+            # 剪贴板为空或无法读取时会报错，忽略即可
+            pass
+
     def add_to_queue(self):
         """解析输入并添加到界面"""
-        url = self.url_entry.get().strip()
-        if not url:
-            messagebox.showwarning("提示", "请输入有效的视频地址后再点击添加。")
+        raw_text = self.url_entry.get("1.0", "end-1c")
+        if "一条链接一行" in raw_text:
+            urls = []
+        else:
+            urls = [u.strip() for u in raw_text.splitlines() if u.strip()]
+
+        if not urls:
+            messagebox.showwarning("提示", "请输入有效的视频地址然后再点击添加（每行一个链接）。")
             return
         
         quality_map = {"最佳画质": "Best", "1080p": "1080p", "720p": "720p", "仅音频": "Audio Only"}
@@ -307,16 +343,19 @@ class App(ctk.CTk):
         # 使用配置项中的下载路径
         download_path = self.config.get("download_path")
         
-        task = self.engine.add_task(url, quality, cookies, download_path, video_format)
-        item = DownloadItem(self.scroll_frame, task, self.remove_item)
-        item.grid(row=len(self.item_frames), column=0, padx=10, pady=8, sticky="ew")
-        self.item_frames.append(item)
-        
-        self.url_entry.delete(0, 'end')
-        self.status_bar.configure(text=f"状态: 已添加并自动开始下载")
-        
-        # 自动开始下载
-        item.start()
+        added_count = 0
+        for url in urls:
+            task = self.engine.add_task(url, quality, cookies, download_path, video_format)
+            item = DownloadItem(self.scroll_frame, task, self.remove_item)
+            item.grid(row=len(self.item_frames), column=0, padx=10, pady=8, sticky="ew")
+            self.item_frames.append(item)
+            item.start()
+            added_count += 1
+            
+        # 清空输入框并恢复提示
+        self.url_entry.delete("1.0", "end")
+        self.url_entry.insert("1.0", "在此粘贴视频链接，支持多行，一条链接一行...")
+        self.status_bar.configure(text=f"状态: 批量添加了 {added_count} 个任务并自动开始下载")
 
     def open_settings(self):
         """打开设置窗口"""
